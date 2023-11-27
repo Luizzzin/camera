@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera</title>
+    <style>
+        * {
+            margin: 0;
+            border: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url(0a000f19-28c0-4a38-b056-de9ba3015473.jpg);
+            background-size: 100%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        #foto {
+            display: none;/* Inicialmente oculto */
+            width: 500px;
+            height: 375px;
+            background-size: 100%;
+            background-repeat: none;
+             
+        }
+
+        #camera {
+            width: 500px;
+            margin: 10px;
+        }
+
+        #areaFoto {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgb(255, 255, 255);
+            width: 700px;
+            height: 740px;
+            margin: 20px;
+            border-radius: 20px;
+        }
+
+        button {
+            width: 100px;
+            height: 30px;
+            border-radius: 7px;
+            margin-top: 20px;
+            margin-bottom: -90px;
+            background-color: white;
+            color: #D86025;
+            transition: ease 0.3s;
+            border: 1px solid black;
+        }
+
+        button:hover {
+            background-color: #D86025;
+            color: white;
+            border: none;
+        }
+
+        h1 {
+            margin-bottom: 50px;
+            color: #D86025;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="areaFoto">
+        <h1>Mande Sua Fanart</h1>
+        <video id="camera" autoplay></video>
+        <div id="foto"></div>
+
+        <div id="botoes">
+            <button onclick="tirarFoto()">Tirar foto</button>
+            <button onclick="reativarCamera()">Reativar câmera</button>
+        </div>
+    </main>
+
+    <script>
+        var mediaStream;
+        var downloadLink; // Adicionado para manter uma referência ao link de download
+
+        window.onload = function () {
+            abrirCamera();
+        };
+
+        function abrirCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(function (stream) {
+                    mediaStream = stream;
+                    const areaVideo = document.getElementById('camera');
+                    areaVideo.srcObject = stream;
+                })
+                .catch(function (error) {
+                    console.error('Erro ao acessar a câmera', error);
+                });
+        };
+
+        function tirarFoto() {
+            const areaVideo = document.getElementById('camera');
+            const fotoDiv = document.getElementById('foto');
+
+            // Remover o link de download anterior, se existir
+            if (downloadLink) {
+                document.body.removeChild(downloadLink);
+            }
+
+            // Capturar a imagem da câmera
+            const canvas = document.createElement('canvas');
+            canvas.width = areaVideo.videoWidth;
+            canvas.height = areaVideo.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(areaVideo, 0, 0, canvas.width, canvas.height);
+            const imageDataURL = canvas.toDataURL();
+
+            // Exibir a foto e ocultar a câmera
+            fotoDiv.style.backgroundImage = `url(${imageDataURL})`;
+            fotoDiv.style.display = 'block';
+            areaVideo.style.display = 'none';
+
+            // Adicionar o novo link de download
+            downloadLink = document.createElement('a');
+            downloadLink.href = imageDataURL;
+            downloadLink.download = 'foto.png';
+            downloadLink.textContent = 'Clique para baixar';
+            document.body.appendChild(downloadLink);
+        }
+
+        function reativarCamera() {
+            const areaVideo = document.getElementById('camera');
+            const fotoDiv = document.getElementById('foto');
+
+            // Ocultar a foto e exibir a câmera
+            fotoDiv.style.display = 'none';
+            areaVideo.style.display = 'block';
+
+            // Reiniciar a câmera
+            abrirCamera();
+        }
+    </script>
+</body>
+
+</html>
